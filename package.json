@@ -4,11 +4,17 @@
   "description": "chat with node, express and socket io ",
   "main": "index.js",
   "scripts": {
+    "start": "node servidor",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "socket.io": "^4.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }
