@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
 const http = require("http");
-const socketIO = require("socket.io");
+const socketio = require("socket.io");
 
 const server = http.createServer(app);
-const io = socketIO(server, {
+const io = socketio(server, {
   cors: {
     origin: "*",
   },
@@ -19,7 +19,18 @@ io.on("connection", (socket) => {
     console.info("Usuario conectado", payload);
     io.emit("conectado", payload);
   });
+
+  socket.on("message", (username, message) => {
+    io.emit("messages", { username, message });
+  });
+
+  socket.on("disconnect", () => {
+    io.emit("messages", {
+      servidor: "servidor",
+      message: "Ha abandonado la sala",
+    });
+  });
 });
 
-const PORT = 4500;
+const PORT = 4000;
 server.listen(PORT, () => console.info(`Escuchando en el puerto ${PORT}`));
