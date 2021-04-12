@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const socketio = require("socket.io");
+const router = require("./router");
+const { addUser, removeUser, getUser } = require("./helpers/users");
 
 const server = http.createServer(app);
 const io = socketio(server, {
@@ -10,27 +12,62 @@ const io = socketio(server, {
   },
 });
 
-// server.use("/", (req, res) => {
-//   res.send("<h1>Hola Desde Node</h1>");
-// });
+app.use("/", router());
 
 io.on("connection", (socket) => {
-  socket.on("conectado", (payload) => {
-    console.info("Usuario conectado", payload);
-    io.emit("conectado", payload);
+  let name;
+
+  socket.on("connected", (username, callback) => {
+    name = username;
+    console.info("Usuario conectado", name);
+
+    const { user } = addUser({ id: socket.id, username });
+
+    socket.broadcast.emit("message", {
+      user: "admin",
+      text: `@${user.username} welcome to this chat!`,
+    });
+
+    socket.broadcast.emit("messages", {
+      name: name,
+      text: `@${name} se ha conectado al chat, Saludalo!`,
+    });
+
+    socket.join(user.username);
+
+    // callback();
   });
 
-  socket.on("message", (username, message) => {
-    io.emit("messages", { username, message });
+  // socket.on("newUser", (message) => {
+  //   const user = getUser(socket.id);
+  //   console.info(user);
+
+  //   io.emit("message", { user: user.username, text: message });
+
+  //   // callback();
+  // });
+
+  socket.on("sendMessage", (message) => {
+    const user = getUser(socket.id);
+    console.info(user);
+
+    io.emit("message", { user: user.username, text: message });
+
+    // callback();
   });
+
+  // socket.on("sendMessage", (username, message) => {
+  //   io.emit("messages", { username, message });
+  // });
 
   socket.on("disconnect", () => {
     io.emit("messages", {
       servidor: "servidor",
-      message: "Ha abandonado la sala",
+      message: `@${name} Ha abandonado la sala`,
     });
   });
 });
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
+
 server.listen(PORT, () => console.info(`Escuchando en el puerto ${PORT}`));
