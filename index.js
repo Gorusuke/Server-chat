@@ -3,7 +3,7 @@ const app = express();
 const http = require("http");
 const socketio = require("socket.io");
 const router = require("./router");
-const { addUser, removeUser, getUser } = require("./helpers/users");
+const { addUser, removeUser, getUser, users } = require("./helpers/users");
 
 const server = http.createServer(app);
 const io = socketio(server, {
@@ -23,28 +23,33 @@ io.on("connection", (socket) => {
 
     const { user } = addUser({ id: socket.id, username });
 
-    socket.broadcast.emit("message", {
+    socket.emit("message", {
       user: "admin",
       text: `@${user.username} welcome to this chat!`,
     });
 
-    socket.broadcast.emit("messages", {
-      name: name,
-      text: `@${name} se ha conectado al chat, Saludalo!`,
-    });
+    // socket.broadcast.emit("message", {
+    //   user: "welcome",
+    //   text: `@${user.username}`,
+    // });
 
     socket.join(user.username);
+    console.info(users);
 
-    // callback();
+    if (users.length !== 0) {
+      callback({
+        users,
+      });
+    }
   });
 
-  // socket.on("newUser", (message) => {
-  //   const user = getUser(socket.id);
-  //   console.info(user);
-
-  //   io.emit("message", { user: user.username, text: message });
-
-  //   // callback();
+  // socket.on("newUser", (username) => {
+  //   // const user = getUser(socket.id);
+  //   // console.info(user);
+  //   console.info("desde newUser");
+  //   socket.emit("message", {
+  //     text: `@${username} has joined!`,
+  //   });
   // });
 
   socket.on("sendMessage", (message) => {
@@ -55,10 +60,6 @@ io.on("connection", (socket) => {
 
     // callback();
   });
-
-  // socket.on("sendMessage", (username, message) => {
-  //   io.emit("messages", { username, message });
-  // });
 
   socket.on("disconnect", () => {
     io.emit("messages", {
