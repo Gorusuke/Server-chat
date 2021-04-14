@@ -29,43 +29,38 @@ io.on("connection", (socket) => {
     });
 
     // socket.broadcast.emit("message", {
-    //   user: "welcome",
-    //   text: `@${user.username}`,
+    //   user: "admin",
+    //   text: `@${user.username} Has joined the chat, say hello`,
     // });
 
     socket.join(user.username);
-    console.info(users);
-
-    if (users.length !== 0) {
-      callback({
-        users,
-      });
-    }
   });
 
-  // socket.on("newUser", (username) => {
-  //   // const user = getUser(socket.id);
-  //   // console.info(user);
-  //   console.info("desde newUser");
-  //   socket.emit("message", {
-  //     text: `@${username} has joined!`,
-  //   });
-  // });
+  socket.on("newUser", (username, callback) => {
+    socket.broadcast.emit("user", {
+      text: `@${username.split(" ")[0]}`,
+    });
+
+    callback({
+      users,
+    });
+  });
 
   socket.on("sendMessage", (message) => {
     const user = getUser(socket.id);
     console.info(user);
 
     io.emit("message", { user: user.username, text: message });
-
-    // callback();
   });
 
   socket.on("disconnect", () => {
-    io.emit("messages", {
-      servidor: "servidor",
-      message: `@${name} Ha abandonado la sala`,
-    });
+    const user = removeUser(socket.id);
+    if (user) {
+      io.emit("messages", {
+        user: "admin",
+        message: `@${name} Has left`,
+      });
+    }
   });
 });
 
