@@ -1,8 +1,11 @@
+require("./mongo");
 const express = require("express");
 const app = express();
 const http = require("http");
 const socketio = require("socket.io");
+const cors = require("cors");
 const router = require("./router");
+const userRoutes = require("./routes/userRoutes");
 const { addUser, removeUser, getUser, users } = require("./helpers/users");
 
 const server = http.createServer(app);
@@ -12,6 +15,8 @@ const io = socketio(server, {
   },
 });
 
+app.use(cors());
+app.use("/api/users", userRoutes());
 app.use("/", router());
 
 io.on("connection", (socket) => {
@@ -38,6 +43,7 @@ io.on("connection", (socket) => {
 
   socket.on("newUser", (username, callback) => {
     socket.broadcast.emit("user", {
+      user: username,
       text: `@${username.split(" ")[0]}`,
     });
 
