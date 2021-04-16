@@ -4,7 +4,6 @@ const app = express();
 const http = require("http");
 const socketio = require("socket.io");
 const cors = require("cors");
-const router = require("./router");
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const { addUser, removeUser, getUser, users } = require("./helpers/users");
@@ -17,6 +16,8 @@ const io = socketio(server, {
 });
 
 app.use(cors());
+app.use(express.json());
+
 app.use("/api/users", userRoutes());
 app.use("/", messageRoutes());
 
