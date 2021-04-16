@@ -1,8 +1,6 @@
 const users = [];
 
 const addUser = ({ id, username }) => {
-  username = username.split(" ")[0];
-
   const user = { id, username };
   users.push(user);
   return { user };

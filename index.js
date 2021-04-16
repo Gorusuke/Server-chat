@@ -6,6 +6,7 @@ const socketio = require("socket.io");
 const cors = require("cors");
 const router = require("./router");
 const userRoutes = require("./routes/userRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 const { addUser, removeUser, getUser, users } = require("./helpers/users");
 
 const server = http.createServer(app);
@@ -17,28 +18,22 @@ const io = socketio(server, {
 
 app.use(cors());
 app.use("/api/users", userRoutes());
-app.use("/", router());
+app.use("/", messageRoutes());
 
 io.on("connection", (socket) => {
-  let name;
-
-  socket.on("connected", (username, callback) => {
-    name = username;
-    console.info("Usuario conectado", name);
+  socket.on("connected", (username) => {
+    console.info("Usuario conectado", username);
 
     const { user } = addUser({ id: socket.id, username });
 
     socket.emit("message", {
       user: "admin",
-      text: `@${user.username} welcome to this chat!`,
+      text: `@${user.username.split(" ")[0]} ${
+        user.username.split(" ")[1]
+      } welcome to this chat!`,
     });
 
-    // socket.broadcast.emit("message", {
-    //   user: "admin",
-    //   text: `@${user.username} Has joined the chat, say hello`,
-    // });
-
-    socket.join(user.username);
+    // socket.join(user.username);
   });
 
   socket.on("newUser", (username, callback) => {
@@ -54,18 +49,25 @@ io.on("connection", (socket) => {
 
   socket.on("sendMessage", (message) => {
     const user = getUser(socket.id);
-    console.info(user);
+    // console.info(user);
 
     io.emit("message", { user: user.username, text: message });
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", (callback) => {
     const user = removeUser(socket.id);
     if (user) {
+      console.info(user.username);
+      console.info(users);
       io.emit("messages", {
         user: "admin",
-        message: `@${name} Has left`,
+        text: `@${user.username.split(" ")[0]} ${
+          user.username.split(" ")[1]
+        } Has left this chat`,
       });
+      // callback({
+      //   users,
+      // });
     }
   });
 });
