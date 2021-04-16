@@ -10,20 +10,24 @@ module.exports = function () {
   });
 
   router.post("/", async (req, res) => {
-    const { body } = req;
-    const { username, email, password } = body;
+    try {
+      const { body } = req;
+      const { username, email, password } = body;
+      // Encriptando el password con bcrypt
+      const saltRounds = 10;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
+      const user = new User({
+        username,
+        email,
+        passwordHash,
+      });
 
-    // Encriptando el password con bcrypt
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-    const user = new User({
-      username,
-      email,
-      passwordHash,
-    });
-
-    const savedUser = await user.save();
-    res.status(201).json(savedUser);
+      const savedUser = await user.save();
+      res.status(201).json(savedUser);
+    } catch (error) {
+      console.info(error.message);
+      res.status(400).json(error.message);
+    }
   });
 
   return router;
