@@ -26,7 +26,9 @@ module.exports = function () {
       username: user.username,
     };
 
-    const token = jwt.sign(userForToken, process.env.SECRETWORD);
+    const token = jwt.sign(userForToken, process.env.SECRETWORD, {
+      expiresIn: 60 * 60,
+    });
 
     res.send({
       username: user.username,
