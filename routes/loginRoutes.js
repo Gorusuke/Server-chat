@@ -7,9 +7,10 @@ const User = require("../model/User");
 module.exports = function () {
   router.post("/", async (req, res) => {
     const { body } = req;
-    const { username, password } = body;
+    const { password, email } = body;
+    // console.info(req);
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
 
     // Encriptando el password con bcrypt
     const correctPassword =

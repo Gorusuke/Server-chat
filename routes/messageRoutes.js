@@ -19,24 +19,24 @@ module.exports = function () {
   router.post("/api/messages", async (req, res, next) => {
     const { message, user } = req.body;
 
-    const authorization = req.get("authorization");
-    let token = "";
+    // const authorization = req.get("authorization");
+    // let token = "";
 
-    if (authorization && authorization.toLowerCase().startsWith("bearer")) {
-      token = authorization.split(" ")[1];
-    }
+    // if (authorization && authorization.toLowerCase().startsWith("bearer")) {
+    //   token = authorization.split(" ")[1];
+    // }
 
-    let decodedToken = {};
+    // let decodedToken = {};
 
-    try {
-      decodedToken = jwt.verify(token, process.env.SECRETWORD);
-    } catch (error) {
-      console.info(error);
-    }
+    // try {
+    //   decodedToken = jwt.verify(token, process.env.SECRETWORD);
+    // } catch (error) {
+    //   console.info(error);
+    // }
 
-    if (!token || !decodedToken.id) {
-      return res.status(401).json({ error: "token is missing or invalid" });
-    }
+    // if (!token || !decodedToken.id) {
+    //   return res.status(401).json({ error: "token is missing or invalid" });
+    // }
 
     if (!message) {
       res.status(400).json({ error: "message is missing" });
