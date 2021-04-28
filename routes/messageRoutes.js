@@ -45,7 +45,6 @@ module.exports = function () {
     const newMessage = new Messages({
       message,
       user,
-      date: new Date().toISOString(),
     });
 
     const saveMessage = await newMessage.save();

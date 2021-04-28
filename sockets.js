@@ -5,18 +5,15 @@ module.exports = (io) => {
   let users = {};
 
   io.on("connection", async (socket) => {
-    let mensajes = await Messages.find({}).limit(40).sort("-date");
+    // let mensajes = await Messages.find({}).limit(40).sort("-date");
 
-    socket.emit("load old messages", mensajes);
+    // socket.emit("load old messages", mensajes);
 
     // socket.on("connected", (username) => {
     //   console.info("Usuario conectado", username);
-
-    //   const { user } = addUser({ id: socket.id, username });
-
     //   socket.emit("message", {
     //     user: "admin",
-    //     text: `@${user.username} welcome to this chat!`,
+    //     text: `@${username} welcome to this chat!`,
     //   });
 
     //   // socket.join(user.username);
@@ -42,6 +39,7 @@ module.exports = (io) => {
         user[socket.username] = socket;
         updateUsers();
       }
+      console.info(users);
     });
 
     // socket.on("sendMessage", (message) => {
@@ -52,34 +50,36 @@ module.exports = (io) => {
     // });
 
     socket.on("sendMessage", async (data, callback) => {
-      let msg = data.trim();
+      // let msg = data.trim();
 
-      if (msg.substr(0, 3) === "/w ") {
-        msg = msg.substr(3);
-        let index = msg.indexOf(" ");
-        if (index !== -1) {
-          let name = msg.substring(0, index);
-          msg = substring(index + 1);
-          if (name in users) {
-            user[name].emit("whisper", {
-              msg,
-              user: socket.username,
-            });
-          } else {
-            callback("Error! Enter a valid User");
-          }
-        } else {
-          callback("Error! Please enter your message");
-        }
-      } else {
-        let newMessage = new Messages({
-          message: msg,
-          user: socket.username,
-        });
-        await newMessage.save();
+      // if (msg.substr(0, 3) === "/w ") {
+      //   msg = msg.substr(3);
+      //   let index = msg.indexOf(" ");
+      //   if (index !== -1) {
+      //     let name = msg.substring(0, index);
+      //     msg = substring(index + 1);
+      //     if (name in users) {
+      //       user[name].emit("whisper", {
+      //         msg,
+      //         user: socket.username,
+      //       });
+      //     } else {
+      //       callback("Error! Enter a valid User");
+      //     }
+      //   } else {
+      //     callback("Error! Please enter your message");
+      //   }
+      // } else {
+      let newMessage = new Messages({
+        message: data.message,
+        user: data.username,
+        date: new Date().toISOString(),
+      });
+      await newMessage.save();
 
-        io.socket.emit("new message", { user: user.username, message });
-      }
+      // io.emit("message", { user: data.username, message: data.message });
+      // }
+      console.info(data);
     });
 
     // socket.on("disconnect", (callback) => {
