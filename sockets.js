@@ -1,28 +1,12 @@
+const { now } = require("mongoose");
 const Messages = require("./model/Messages");
-// const { addUser, removeUser, getUser, users } = require("./helpers/users");
 
 module.exports = (io) => {
   let users = [];
 
   io.on("connection", (socket) => {
-    // let mensajes = Messages.find({}).limit(10).sort("-date");
-
-    // socket.emit("load old messages", mensajes);
-
-    socket.on("newUser", (data, callback) => {
-      // if (data in users) {
-      //   callback(false);
-      // } else {
-      //   callback(true);
-      //   socket.username = data;
-      //   user[socket.username] = socket;
-      //   updateUsers();
-      // }
-      // console.info(users);
-    });
-
     socket.on("connected", (username) => {
-      console.info("Usuario conectado", username);
+      // console.info("Usuario conectado", username);
       socket.emit("message", {
         user: "admin",
         text: `@${username} welcome to this chat!`,
@@ -32,9 +16,6 @@ module.exports = (io) => {
         username,
       };
       users.push(user);
-      console.info(users);
-
-      // socket.join(user.username);
     });
 
     socket.on("users", (callback) => {
@@ -45,7 +26,6 @@ module.exports = (io) => {
       const newMessage = new Messages({
         message: data.message,
         user: data.username,
-        date: new Date().toISOString(),
       });
       await newMessage.save();
     });
@@ -71,15 +51,5 @@ module.exports = (io) => {
         // callback({ users });
       }
     });
-
-    // socket.on("disconnect", (data) => {
-    //   if (!socket.username) return;
-    //   delete users[socket.username];
-    //   updateUsers();
-    // });
-
-    // function updateUsers(params) {
-    //   io.socket.emit("usernames", Object.keys(users));
-    // }
   });
 };

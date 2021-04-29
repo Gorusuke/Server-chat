@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Messages = require("../model/Messages");
-const jwt = require("jsonwebtoken");
-// const User = require('../models/User')
 
 module.exports = function () {
   router.get("/", (req, res) => {
@@ -11,32 +9,13 @@ module.exports = function () {
   });
 
   router.get("/api/messages", async (req, res) => {
-    // Obteniendo todas las notas
+    // Obteniendo todas las messages
     const messages = await Messages.find({});
     res.json(messages);
   });
 
   router.post("/api/messages", async (req, res, next) => {
     const { message, user } = req.body;
-
-    // const authorization = req.get("authorization");
-    // let token = "";
-
-    // if (authorization && authorization.toLowerCase().startsWith("bearer")) {
-    //   token = authorization.split(" ")[1];
-    // }
-
-    // let decodedToken = {};
-
-    // try {
-    //   decodedToken = jwt.verify(token, process.env.SECRETWORD);
-    // } catch (error) {
-    //   console.info(error);
-    // }
-
-    // if (!token || !decodedToken.id) {
-    //   return res.status(401).json({ error: "token is missing or invalid" });
-    // }
 
     if (!message) {
       res.status(400).json({ error: "message is missing" });
@@ -45,6 +24,7 @@ module.exports = function () {
     const newMessage = new Messages({
       message,
       user,
+      date,
     });
 
     const saveMessage = await newMessage.save();
