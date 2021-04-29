@@ -1,4 +1,3 @@
-const { now } = require("mongoose");
 const Messages = require("./model/Messages");
 
 module.exports = (io) => {
@@ -11,6 +10,11 @@ module.exports = (io) => {
         user: "admin",
         text: `@${username} welcome to this chat!`,
       });
+
+      socket.broadcast.emit("message", {
+        user: "users",
+        text: `@${username} Has joined the chat, say hello`,
+      });
       const user = {
         id: socket.id,
         username,
@@ -22,7 +26,7 @@ module.exports = (io) => {
       callback({ users });
     });
 
-    socket.on("sendMessage", async (data, callback) => {
+    socket.on("sendMessage", async (data) => {
       const newMessage = new Messages({
         message: data.message,
         user: data.username,
@@ -31,24 +35,18 @@ module.exports = (io) => {
     });
 
     socket.on("disconnect", (callback) => {
-      console.info(users);
       const removeUser = (id) => {
         const index = users.findIndex((user) => user.id === id);
-
         if (index !== -1) {
           return users.splice(index, 1)[0];
         }
       };
       const user = removeUser(socket.id);
       if (user) {
-        console.info("desde Disconect");
-        console.info(user.username);
-        console.info(users);
         io.emit("message", {
-          user: "admin",
+          user: "users",
           text: `@${user.username} Has left this chat`,
         });
-        // callback({ users });
       }
     });
   });
