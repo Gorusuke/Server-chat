@@ -22,9 +22,9 @@ require("./sockets")(io);
 app.use(cors());
 app.use(express.json());
 
+app.use("/", messageRoutes());
 app.use("/api/users", userRoutes());
 app.use("/api/login", loginRoutes());
-app.use("/", messageRoutes());
 
 const PORT = process.env.PORT || 4000;
 
