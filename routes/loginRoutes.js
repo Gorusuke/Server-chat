@@ -5,6 +5,10 @@ const router = express.Router();
 const User = require("../model/User");
 
 module.exports = function () {
+  router.get("/", (req, res) => {
+    res.send('Holiwis');
+  });
+
   router.post("/", async (req, res) => {
     const { body } = req;
     const { password, email } = body;
